@@ -1,14 +1,22 @@
 {
   "name": "@shedflare/site",
+  "version": "0.1.0",
   "private": true,
+  "description": "The public Shedflare project website.",
+  "license": "MIT",
+  "repository": "github:shedflare/site",
   "type": "module",
   "scripts": {
     "dev": "vp dev",
     "build": "vp build",
-    "check": "vp check",
+    "test": "vp test --passWithNoTests",
+    "check": "vp check src deploy alchemy.run.ts vite.config.ts",
     "typecheck": "tsc --noEmit",
-    "deploy": "vp exec alchemy deploy alchemy.run.ts --stage prod",
-    "destroy": "vp exec alchemy destroy alchemy.run.ts --stage prod",
+    "plan": "vp build && vp exec alchemy plan alchemy.run.ts",
+    "deploy": "vp build && vp exec alchemy deploy alchemy.run.ts --stage prod --yes",
+    "deploy:stage": "vp build && vp exec alchemy deploy alchemy.run.ts --yes",
+    "destroy": "vp exec alchemy destroy alchemy.run.ts --stage prod --yes",
+    "destroy:stage": "vp exec alchemy destroy alchemy.run.ts --yes",
     "prepare": "vp config"
   },
   "dependencies": {
@@ -19,6 +27,14 @@
   "devDependencies": {
     "@cloudflare/vite-plugin": "^1.32.3",
     "@cloudflare/workers-types": "^4.20260415.1",
+    "@shedflare/alchemy": "^0.1.0",
+    "@types/node": "catalog:",
+    "@typescript/native-preview": "catalog:",
+    "alchemy": "catalog:",
+    "effect": "catalog:",
+    "jsdom": "catalog:",
+    "jsonc-parser": "catalog:",
+    "vite": "catalog:",
     "vite-plugin-solid": "^2.11.12",
     "vite-plus": "catalog:",
     "wrangler": "catalog:"
@@ -26,5 +42,5 @@
   "engines": {
     "node": ">=22.12.0"
   },
-  "packageManager": "pnpm@10.32.1"
+  "packageManager": "pnpm@11.9.0"
 }

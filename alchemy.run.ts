@@ -1,11 +1,8 @@
 import * as Alchemy from "alchemy";
 import * as Cloudflare from "alchemy/Cloudflare";
+import { physicalName } from "@shedflare/alchemy";
 import * as Effect from "effect/Effect";
-import { physicalName } from "../infra/alchemy-env.ts";
-
-const SITE_DOMAINS = process.env.SHEDFLARE_SITE_DOMAIN
-  ? process.env.SHEDFLARE_SITE_DOMAIN.split(",").map((d) => d.trim())
-  : ["shedflare.com", "www.shedflare.com"];
+import { loadDeployConfig } from "./deploy/config.ts";
 
 export const SiteStack = Alchemy.Stack(
   "ShedflareSite",
@@ -15,11 +12,13 @@ export const SiteStack = Alchemy.Stack(
   },
   Effect.gen(function* () {
     const stage = yield* Alchemy.Stage;
+    const config = loadDeployConfig();
+    const production = stage === "prod";
 
     const worker = yield* Cloudflare.Worker("SiteWorker", {
       name: physicalName(stage, "site"),
-      main: "site/src/worker.ts",
-      assets: "site/dist",
+      main: "src/worker.ts",
+      assets: "dist",
       compatibility: {
         date: "2026-05-16",
         flags: ["nodejs_compat"],
@@ -28,14 +27,14 @@ export const SiteStack = Alchemy.Stack(
         enabled: true,
         headSamplingRate: 1,
       },
-      url: false,
-      domain: SITE_DOMAINS,
+      url: !production,
+      domain: production ? [...config.domains] : undefined,
     });
 
     return {
       app: "site" as const,
-      url: worker.url ?? (SITE_DOMAINS.length > 0 ? `https://${SITE_DOMAINS[0]}` : undefined),
-      domains: SITE_DOMAINS,
+      url: worker.url ?? `https://${config.domains[0]}`,
+      domains: config.domains,
       workerName: worker.workerName,
     };
   }),
