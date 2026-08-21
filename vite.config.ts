@@ -1,8 +1,8 @@
 import { cloudflare } from "@cloudflare/vite-plugin";
-import { defineConfig } from "vite-plus";
+import { antiSlopFmt, antiSlopLint } from "./anti-slop.vite.ts";
 import solid from "vite-plugin-solid";
 
-export default defineConfig({
+export default {
   plugins: [solid(), ...(process.env.VITEST ? [] : [cloudflare()])],
   server: {
     allowedHosts: true,
@@ -10,5 +10,6 @@ export default defineConfig({
   staged: {
     "*": "vp check --fix",
   },
-  lint: { options: { typeAware: true, typeCheck: true } },
-});
+  lint: { ...antiSlopLint, options: { typeAware: true, typeCheck: true } },
+  fmt: antiSlopFmt,
+};
